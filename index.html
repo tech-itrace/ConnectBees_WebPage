@@ -645,7 +645,24 @@
         section {
             animation: fadeIn 0.8s ease-out;
         }
+        .loader {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top: 3px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
     </style>
+
 </head>
 
 <body>
@@ -939,6 +956,72 @@
             }
         });
     </script>
+
+    <script>
+        function openModal() {
+            document.getElementById('betaModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('betaModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        document.getElementById('betaModal').addEventListener('click', function (e) {
+            if (e.target === this) closeModal();
+        });
+
+        // ✅ Enhanced form submission with loader
+        async function handleSubmit(event) {
+            event.preventDefault();
+
+            const form = event.target;
+            const submitBtn = form.querySelector('.submit-button');
+
+            // Disable button and show loader
+            submitBtn.disabled = true;
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Submitting...';
+            submitBtn.innerHTML = '<span class="loader"></span> Submitting...';
+
+            submitBtn.style.opacity = '0.7';
+            submitBtn.style.cursor = 'not-allowed';
+
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData);
+
+            try {
+                const response = await fetch("https://script.google.com/macros/s/AKfycbzF_YjfJZU-KTPJmoVHrk5zCtyPNpPhEXwZ4nWCAoh4a1yv5bSfrpFEktNsmhN7kqA/exec", {
+                    method: "POST",
+                    body: JSON.stringify(data),
+                });
+
+                if (response.ok) {
+                    alert("✅ Thank you! Your application has been submitted successfully.");
+                    form.reset();
+                    closeModal();
+                } else {
+                    alert("⚠️ Something went wrong. Please try again later.");
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("❌ Network error. Please try again later.");
+            } finally {
+                // Re-enable button
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+                submitBtn.style.opacity = '1';
+                submitBtn.style.cursor = 'pointer';
+            }
+        }
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') closeModal();
+        });
+    </script>
+
+
 </body>
 
 </html>
